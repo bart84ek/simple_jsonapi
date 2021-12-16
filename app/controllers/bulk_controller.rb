@@ -6,7 +6,7 @@ class BulkController < ApplicationController
   def operations
     operations = operations_deserializer(bulk_params)
     op = BulkAddOperations.new({ authors: Author, articles: Article })
-    op.execute(operations)
+    op.execute(operations.select { |o| o.action == :add })
 
     if op.errors?
       render json: { ok: false, errors: op.errors }, status: 422
