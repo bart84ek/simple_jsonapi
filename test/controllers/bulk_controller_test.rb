@@ -1,4 +1,4 @@
-require "test_helper"
+require 'test_helper'
 
 class BulkControllerTest < ActionDispatch::IntegrationTest
   test 'patch /bulk should success' do
@@ -45,6 +45,7 @@ class BulkControllerTest < ActionDispatch::IntegrationTest
     patch bulk_url, params: params
     assert_response :success
   end
+
   test 'patch /bulk with two associated with wrong operations order should success' do
     params = {
       "operations": [
