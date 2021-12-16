@@ -5,7 +5,6 @@ class BulkController < ApplicationController
 
   def operations
     operations = operations_deserializer(bulk_params)
-    bulk_add = BulkAddOperations.new({ authors: Author, articles: Article })
     bulk_add.execute(operations.select { |o| o.action == :add })
 
     if bulk_add.errors?
@@ -16,6 +15,10 @@ class BulkController < ApplicationController
   end
 
   private
+
+  def bulk_add
+    @bulk_add ||= BulkAddOperations.new({ authors: Author, articles: Article })
+  end
 
   def handle_missing_param(error)
     error = "param '#{error.param}' is missing"
