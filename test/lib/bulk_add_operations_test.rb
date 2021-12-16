@@ -33,6 +33,28 @@ class BulkAddOperationsTest < ActiveSupport::TestCase
     subject = BulkAddOperations.new(allowed_models)
     subject.execute(operations)
 
+    assert_equal false, subject.errors?
+    assert_equal 1, Author.count
+    assert_equal 1, Article.count
+  end
+
+  test 'execute add operation with relationship in reveresed order succesfully' do
+    operations = [
+      Jsonapi::Operation.new(
+        action: :add,
+        model: :articles,
+        attributes: { title: 'ArticleOne' },
+        refs: { author: 'b' }
+      ),
+      Jsonapi::Operation.new(action: :add, lid: 'b', model: :authors, attributes: { name: 'Bob' })
+    ]
+    allowed_models = {
+      authors: Author,
+      articles: Article
+    }
+    subject = BulkAddOperations.new(allowed_models)
+    subject.execute(operations)
+
     puts subject.errors
 
     assert_equal false, subject.errors?

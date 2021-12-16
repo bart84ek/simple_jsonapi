@@ -8,24 +8,12 @@ class BulkAddOperations
     @lids = {}
   end
 
+  # TODO: what if we have lid with refs ?
   def execute(operations)
+    # lids first !
+    operations.sort_by! { |o| o.lid.to_s }.reverse!
     ActiveRecord::Base.transaction do
-      operations.each do |op|
-        obj_class = allowed_models[op.model]
-        if obj_class.nil?
-          @errors.push "operation 'add' on model '#{op.model}' not allowed"
-          break
-        end
-
-        obj = create_obj(obj_class, op.attributes, op.refs)
-        obj.save
-        if obj.errors.any?
-          obj.errors.map { |err| @errors.push "'#{err.attribute}' #{err.message}" }
-          break
-        end
-
-        @lids[op.lid] = obj if op.lid
-      end
+      execute_resolving_lids(operations)
     end
   end
 
@@ -34,6 +22,25 @@ class BulkAddOperations
   end
 
   private
+
+  def execute_resolving_lids(operations)
+    operations.each do |op|
+      obj_class = allowed_models[op.model]
+      if obj_class.nil?
+        @errors.push "operation 'add' on model '#{op.model}' not allowed"
+        break
+      end
+
+      obj = create_obj(obj_class, op.attributes, op.refs)
+      obj.save
+      if obj.errors.any?
+        obj.errors.map { |err| @errors.push "'#{err.attribute}' #{err.message}" }
+        break
+      end
+
+      @lids[op.lid] = obj if op.lid
+    end
+  end
 
   def create_obj(obj_class, attr, refs)
     obj_class.new(attr).tap do |obj|
