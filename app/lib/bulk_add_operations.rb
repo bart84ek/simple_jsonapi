@@ -47,7 +47,7 @@ class BulkAddOperations
       refs.each_key do |ref_name|
         lid = @lids[refs[ref_name]]
         if lid.nil?
-          @errors.push "lid #{ref_name} not found"
+          @errors.push "lid for '#{ref_name}' not found"
           break
         end
 
