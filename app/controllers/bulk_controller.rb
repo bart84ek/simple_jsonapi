@@ -1,6 +1,7 @@
 # BulkController
 class BulkController < ApplicationController
   include Jsonapi::Deserializer
+  rescue_from ActionController::ParameterMissing, with: :handle_missing_param
 
   def operations
     operations = operations_deserializer(bulk_params)
@@ -15,6 +16,11 @@ class BulkController < ApplicationController
   end
 
   private
+
+  def handle_missing_param(error)
+    error = "param '#{error.param}' is missing"
+    render json: { ok: false, errors: [error] }, status: 422
+  end
 
   def article_attributes
     [:title]

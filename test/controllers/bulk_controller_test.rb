@@ -1,9 +1,18 @@
 require 'test_helper'
 
 class BulkControllerTest < ActionDispatch::IntegrationTest
-  test 'patch /bulk should success' do
+  test 'patch /bulk should success with empty operations' do
     patch bulk_url, params: { bulk: { operations: [] } }
     assert_response :success
+  end
+
+  test 'patch /bulk should fail when missing params' do
+    patch bulk_url, params: { bulk: { operations: [{ notOk: 'not even close' }] } }
+    assert_response 422
+    assert_equal(
+      { 'ok' => false, 'errors' => ["param 'data' is missing"] },
+      @response.parsed_body
+    )
   end
 
   test 'patch /bulk with two associated operations should success' do
