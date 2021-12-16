@@ -10,10 +10,10 @@ class JsonapiTest < ActiveSupport::TestCase
       ]
     }
     results = operations_deserializer(params)
-    expected = [
-      { action: :add, model: :authors, lid: 'bob', attributes: { name: 'Bob' }, refs: {} }
-    ]
-    assert_equal expected, results
+    assert_equal :add, results.first.action
+    assert_equal :authors, results.first.model
+    assert_equal 'bob', results.first.lid
+    assert_equal 'Bob', results.first.attributes[:name]
   end
 
   test 'simple add operation with relationship' do
@@ -33,15 +33,6 @@ class JsonapiTest < ActiveSupport::TestCase
       ]
     }
     results = operations_deserializer(params)
-    expected = [
-      {
-        action: :add,
-        model: :authors,
-        lid: 'bob',
-        attributes: { name: 'Bob' },
-        refs: { author: 'john' }
-      }
-    ]
-    assert_equal expected, results
+    assert_equal({ author: 'john' }, results.first.refs)
   end
 end

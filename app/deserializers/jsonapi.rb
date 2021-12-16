@@ -1,4 +1,14 @@
 module Jsonapi
+  class Operation
+    attr_accessor :action, :model, :refs, :lid, :attributes
+
+    def initialize(params = {})
+      @lid = nil
+      @refs = {}
+      params.each { |key, value| send "#{key}=", value }
+    end
+  end
+
   module Deserializer
     def operations_deserializer(params)
       [].tap do |results|
@@ -10,13 +20,13 @@ module Jsonapi
             refs[rel_name] = rel_id
           end
 
-          results.push({
-            action: op.fetch(:op).to_sym,
-            model: op.fetch(:ref).fetch(:type).to_sym,
-            lid: data[:lid],
-            attributes: data.fetch(:attributes),
-            refs: refs
-          })
+          o = Operation.new
+          o.action = op.fetch(:op).to_sym
+          o.model = op.fetch(:ref).fetch(:type).to_sym
+          o.lid = data[:lid]
+          o.attributes = data.fetch(:attributes)
+          o.refs = refs
+          results.push(o)
         end
       end
     end
