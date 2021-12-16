@@ -2,7 +2,7 @@ require 'test_helper'
 
 class BulkControllerTest < ActionDispatch::IntegrationTest
   test 'patch /bulk should success' do
-    patch bulk_url
+    patch bulk_url, params: { bulk: { operations: [] } }
     assert_response :success
   end
 
@@ -42,8 +42,12 @@ class BulkControllerTest < ActionDispatch::IntegrationTest
       }]
     }
 
-    patch bulk_url, params: params
+    patch bulk_url, params: { bulk: params }
     assert_response :success
+    assert_equal 1, Author.count
+    assert_equal 1, Article.count
+    assert_equal 'dgeb', Author.first.name
+    assert_equal 'dgeb', Article.first.author.name
   end
 
   test 'patch /bulk with two associated with wrong operations order should success' do
@@ -84,7 +88,11 @@ class BulkControllerTest < ActionDispatch::IntegrationTest
       }]
     }
 
-    patch bulk_url, params: params
+    patch bulk_url, params: { bulk: params }
     assert_response :success
+    assert_equal 1, Author.count
+    assert_equal 1, Article.count
+    assert_equal 'dgeb', Author.first.name
+    assert_equal 'dgeb', Article.first.author.name
   end
 end

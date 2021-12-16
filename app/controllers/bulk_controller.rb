@@ -3,7 +3,15 @@ class BulkController < ApplicationController
   include Jsonapi::Deserializer
 
   def operations
-    render json: { ok: true }
+    operations = operations_deserializer(bulk_params)
+    op = BulkAddOperations.new({ authors: Author, articles: Article })
+    op.execute(operations)
+
+    if op.errors?
+      render json: { ok: false, errors: op.errors }, status: 422
+    else
+      render json: { ok: true }
+    end
   end
 
   private
